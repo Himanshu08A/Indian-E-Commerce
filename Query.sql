@@ -107,22 +107,57 @@ SELECT *
 FROM sales
 LIMIT 10;
 
--- Total sales
+-- Total amount of sales
 SELECT  
     SUM(total_amount) AS total_sales
 FROM sales;
 
--- Total number of sales
+-- Total number of orders
 SELECT  
     COUNT(order_id) AS total_orders
 FROM sales;
 
 -- Average order value
 SELECT 
-    AVG(total_amount) AS avg_order_value
+    ROUND(AVG(total_amount),0) AS avg_order_value
 FROM sales;
 
 -- Total quantity sold
 SELECT 
     SUM(quantity) AS total_qty_sold
 FROM sales;
+
+-- Average quantity per order
+SELECT 
+    ROUND(AVG(quantity),2) AS avg_quantity
+FROM sales;
+
+-- Total amount of shipping cost
+SELECT
+    SUM(shipping_cost) AS total_shipping_cost
+FROM sales;
+
+-- Total amount of discount 
+SELECT
+    SUM(coupon_discount) AS total_discount
+FROM sales;
+
+-- Total number of products 
+SELECT
+    COUNT(DISTINCT product_id) AS total_products
+FROM sales;
+
+-- Total customers
+SELECT
+    COUNT(*) AS total_customers
+FROM customers;
+
+-- Total number of customer placed orders
+SELECT
+    COUNT(DISTINCT customer_id) AS total_customers
+FROM sales;
+
+-- Average age of customers
+SELECT
+    ROUND(AVG(age),2) AS avg_age
+FROM customers;
