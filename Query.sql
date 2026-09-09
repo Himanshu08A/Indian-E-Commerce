@@ -124,7 +124,7 @@ FROM sales;
 
 -- Total quantity sold
 SELECT 
-    SUM(quantity) AS total_qty_sold
+    SUM(quantity) AS total_unit_sold
 FROM sales;
 
 -- Average quantity per order
@@ -161,3 +161,5 @@ FROM sales;
 SELECT
     ROUND(AVG(age),2) AS avg_age
 FROM customers;
+
+
