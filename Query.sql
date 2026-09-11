@@ -162,4 +162,66 @@ SELECT
     ROUND(AVG(age),2) AS avg_age
 FROM customers;
 
+-- Monthly sales 
+SELECT
+    CASE EXTRACT(MONTH FROM order_date) 
+    WHEN 1 THEN 'Jan'
+    WHEN 2 THEN 'Feb'
+    WHEN 3 THEN 'Mar'
+    WHEN 4 THEN 'Apr'
+    WHEN 5 THEN 'May'
+    WHEN 6 THEN 'Jun'
+    WHEN 7 THEN 'Jul'
+    WHEN 8 THEN 'Aug'
+    WHEN 9 THEN 'Sep'
+    WHEN 10 THEN 'Oct'
+    WHEN 11 THEN 'Nov'
+    WHEN 12 THEN 'Dec'
+    END AS month,
+    SUM(total_amount) AS total_sales
+FROM sales
+GROUP BY EXTRACT(MONTH FROM order_date)
+ORDER BY EXTRACT(MONTH FROM order_date);
 
+-- Top 10 states by sales
+SELECT 
+    state,
+    SUM(total_amount) AS total_sales
+FROM sales
+GROUP BY state
+ORDER BY total_sales DESC 
+LIMIT 10;
+
+-- Top 10 cities by sales
+SELECT
+    city,
+    SUM(total_amount) AS total_sales
+FROM sales
+GROUP BY city
+ORDER BY total_sales DESC
+LIMIT 10;
+
+-- Sales by gender
+SELECT 
+    c.gender, 
+    SUM(s.total_amount)
+FROM sales s
+LEFT JOIN customers c 
+    ON s.customer_id = c.customer_id
+GROUP BY c.gender
+
+-- Which payment mode is used the most
+SELECT 
+    payment_mode,
+    COUNT(payment_mode) AS count
+FROM sales
+GROUP BY payment_mode
+ORDER BY used DESC;
+
+-- Detail of order status
+SELECT 
+    order_status,
+    COUNT(order_status) no_of_orders
+FROM sales
+GROUP BY order_status;
+    
