@@ -210,7 +210,7 @@ LEFT JOIN customers c
     ON s.customer_id = c.customer_id
 GROUP BY c.gender
 
--- Which payment mode is used the most
+-- Most used payment mode
 SELECT 
     payment_mode,
     COUNT(payment_mode) AS count
@@ -225,3 +225,61 @@ SELECT
 FROM sales
 GROUP BY order_status;
     
+-- Sales by age group
+SELECT 
+    CASE 
+        WHEN customer_age < 13 THEN 'Child'
+        WHEN customer_age < 20 THEN 'Teen Age'
+        WHEN customer_age < 40 THEN 'Young Adult'
+        WHEN customer_age < 60 THEN 'Middle Age'
+        ELSE 'Senior'
+    END AS age_group,
+    SUM(total_amount) AS total_sales
+FROM Sales
+GROUP BY 1
+ORDER BY total_sales DESC;
+
+--Sales and percent of total sales by product category
+WITH sales_by_category AS (
+SELECT 
+    p.category,
+    SUM(s.total_amount) AS total_sales
+FROM products p
+LEFT JOIN sales s 
+    ON p.product_id = s.product_id
+GROUP BY p.category
+)
+
+SELECT 
+    category,
+    total_sales,
+    ROUND(
+        total_sales * 100.0 / SUM(total_sales) OVER(), 2) AS prcnt_of_total_sales
+FROM sales_by_category
+ORDER BY total_sales DESC;
+
+-- Top 10 electronics product by sales
+SELECT 
+    p.product_name,
+    SUM(s.total_amount) AS total_sales
+FROM products p 
+INNER JOIN sales S
+    ON p.product_id = s.product_id
+WHERE 
+    p.category = 'Electronics'
+GROUP BY p.product_name
+ORDER BY total_sales DESC 
+LIMIT 10;
+
+-- Top electronic brands by sales
+SELECT 
+    p.brand,
+    SUM(s.total_amount) AS total_sales
+FROM products p 
+INNER JOIN sales s
+    ON p.product_id = s.product_id
+WHERE 
+    p.category = 'Electronics'
+GROUP BY p.brand
+ORDER BY total_sales DESC;
+
