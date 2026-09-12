@@ -226,6 +226,7 @@ FROM sales
 GROUP BY order_status;
     
 -- Sales by age group
+WITH sales_by_age_group AS (
 SELECT 
     CASE 
         WHEN customer_age < 13 THEN 'Child'
@@ -237,6 +238,13 @@ SELECT
     SUM(total_amount) AS total_sales
 FROM Sales
 GROUP BY 1
+)
+
+SELECT 
+    age_group,
+    total_sales,
+    ROUND(total_sales / SUM(total_sales) OVER() * 100,2) AS prcnt_of_total_sales
+FROM sales_by_age_group
 ORDER BY total_sales DESC;
 
 --Sales and percent of total sales by product category
@@ -271,7 +279,8 @@ GROUP BY p.product_name
 ORDER BY total_sales DESC 
 LIMIT 10;
 
--- Top electronic brands by sales
+-- Top electronic brands and how much percent they contributes in total electronic sales 
+WITH electronic_brands AS (
 SELECT 
     p.brand,
     SUM(s.total_amount) AS total_sales
@@ -281,5 +290,15 @@ INNER JOIN sales s
 WHERE 
     p.category = 'Electronics'
 GROUP BY p.brand
+)
+
+SELECT 
+    brand,
+    total_sales,
+    ROUND(total_sales / SUM(total_sales) OVER() * 100, 2) AS prcnt_of_total_sales 
+FROM electronic_brands
 ORDER BY total_sales DESC;
+
+
+
 
