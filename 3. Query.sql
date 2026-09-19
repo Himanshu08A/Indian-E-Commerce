@@ -299,6 +299,78 @@ SELECT
 FROM electronic_brands
 ORDER BY total_sales DESC;
 
+-- Determine how many customers have placed exactly 0 order, 1 order, 2 orders, to 10+ orders.
+WITH customers_orders AS (
+SELECT
+    c.customer_id,
+    COUNT(s.order_id) AS no_of_orders
+FROM customers c
+LEFT JOIN sales s
+    ON c.customer_id = s.customer_id
+GROUP BY c.customer_id
+),
+
+order_group AS (
+SELECT
+    CASE
+    WHEN no_of_orders >= 10 THEN '10+'
+    ELSE no_of_orders::TEXT
+END AS order_frequency,
+    no_of_orders,
+    customer_id
+FROM customers_orders
+)
+
+SELECT
+    order_frequency,
+    COUNT(customer_id) AS customers
+FROM order_group
+GROUP BY order_frequency
+ORDER BY MIN(no_of_orders);
+
+/*For each Customer_Tier, calculate:
+    1.Number of customers
+    2.Total orders
+    3.Total revenue
+    4.Average order value
+    5.Average orders per customer*/
+
+SELECT
+    c.customer_tier,
+    COUNT(DISTINCT c.customer_id) AS total_customers,
+    COUNT(s.order_id) AS total_orders,
+    SUM(s.total_amount) AS total_revenue,
+    ROUND(SUM(s.total_amount) / COUNT(s.order_id),0) AS avg_order_value,
+    COUNT(s.order_id) / COUNT(DISTINCT c.customer_id) AS order_per_customer
+FROM customers c
+LEFT JOIN sales s 
+    ON c.customer_id = s.customer_id
+GROUP BY c.customer_tier
+ORDER BY total_revenue DESC;
+ 
+-- Identify the top 10 customers by total spending and determine what percentage of total company revenue they generate.
+WITH customer_orders AS (
+SELECT
+    s.customer_id,
+    c.customer_name,
+    COUNT(s.order_id) AS total_orders,
+    SUM(s.total_amount) AS total_spendings
+FROM sales s 
+LEFT JOIN customers c 
+    ON s.customer_id = c.customer_id
+GROUP BY s.customer_id, c.customer_name
+)
+
+SELECT
+    customer_id,
+    customer_name,
+    total_orders,
+    total_spendings,
+    ROUND(total_spendings * 100.0 / SUM(total_spendings) OVER(),2) AS prcnt_of_total_revenue,
+    RANK() OVER(ORDER BY total_spendings DESC) AS rank
+FROM customer_orders
+ORDER BY total_spendings DESC
+LIMIT 10;
 
 
 
