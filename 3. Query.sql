@@ -372,5 +372,34 @@ FROM customer_orders
 ORDER BY total_spendings DESC
 LIMIT 10;
 
+-- For every product category, identify the top 3 products by revenue.
+WITH totalSales_by_product AS (
+SELECT
+    p.category,
+    p.product_name,
+    SUM(s.total_amount) AS total_sales
+FROM products p
+LEFT JOIN sales s 
+    ON p.product_id = s.product_id
+GROUP BY p.category, p.product_name
+),
+
+product_rank AS (
+SELECT
+    category,
+    product_name,
+    total_sales,
+    RANK() OVER(PARTITION BY category ORDER BY total_sales DESC) AS rank
+FROM totalSales_by_product
+)
+
+SELECT
+    category,
+    product_name,
+    total_sales,
+    rank
+FROM product_rank
+WHERE rank <= 3;
+
 
 
